@@ -11,7 +11,7 @@ nest_asyncio.apply()
 
 app = FastAPI()
 
-origins = ["https://stockbot-frontend.vercel.app","*"]
+origins = ["https://stockbot-frontend.vercel.app/","*"]
 
 app.add_middleware(
     CORSMiddleware,
