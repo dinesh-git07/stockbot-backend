@@ -10,8 +10,9 @@ import nest_asyncio  # type: ignore
 nest_asyncio.apply()
 
 app = FastAPI()
-
-origins = ["https://stockbot-frontend.vercel.app"]
+frontend_url = "https://stockbot-frontend.vercel.app"
+origins = [frontend_url]
+# origins = ["https://stockbot-frontend.vercel.app"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,7 +44,7 @@ async def flatten_query_string_lists(request: Request, call_next):
     response = await call_next(request)
     
     # Add CORS headers to the response
-    response.headers["Access-Control-Allow-Origin"] = "https://stockbot-frontend.vercel.app"
+    response.headers["Access-Control-Allow-Origin"] = frontend_url
     response.headers["Access-Control-Allow-Credentials"] = "true"
     
     return response
