@@ -11,27 +11,42 @@ nest_asyncio.apply()
 
 app = FastAPI()
 
-origins = ["https://stockbot-frontend.vercel.app/","*"]
+origins = ["https://stockbot-frontend.vercel.app"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],  # Explicitly list allowed methods
     allow_headers=["*"],
+    expose_headers=["*"],  # Add this if you need to expose any headers to the frontend
+    max_age=3600,  # Cache preflight requests for 1 hour
 )
-
 app.include_router(router)
 
-@app.middleware("http")
+# @app.middleware("http")
+# async def flatten_query_string_lists(request: Request, call_next):
+#     flattened: list[tuple[str, str]] = []
+#     for key, value in request.query_params.multi_items():
+#         flattened.extend((key, entry) for entry in value.split(","))
+
+#     request.scope["query_string"] = urlencode(flattened, doseq=True).encode("utf-8")
+
+#     return await call_next(request)
+
+@app.middleware("http")  # Changed from "https" to "http"
 async def flatten_query_string_lists(request: Request, call_next):
     flattened: list[tuple[str, str]] = []
     for key, value in request.query_params.multi_items():
         flattened.extend((key, entry) for entry in value.split(","))
-
     request.scope["query_string"] = urlencode(flattened, doseq=True).encode("utf-8")
-
-    return await call_next(request)
+    response = await call_next(request)
+    
+    # Add CORS headers to the response
+    response.headers["Access-Control-Allow-Origin"] = "https://stockbot-frontend.vercel.app"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    
+    return response
 
 @app.get("/health")
 def health():
