@@ -23,7 +23,7 @@ app.add_middleware(
 
 app.include_router(router)
 
-@app.middleware("http")
+@app.middleware("https")
 async def flatten_query_string_lists(request: Request, call_next):
     flattened: list[tuple[str, str]] = []
     for key, value in request.query_params.multi_items():
